@@ -13,7 +13,13 @@ jobs:
           - os: ubuntu-22.04
             triplets: x64-linux
           - os: windows-2022
-            triplets: x64-uwp,x64-windows-static,x64-windows,x86-windows
+            triplets: x64-uwp
+          - os: windows-2022
+            triplets: x64-windows-static
+          - os: windows-2022
+            triplets: x64-windows
+          - os: windows-2022
+            triplets: x86-windows
           - os: macos-12
             triplets: x64-osx
 
