@@ -10,7 +10,7 @@ jobs:
 
     permissions:
       id-token: write # Log into Azure
-      content: read
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
