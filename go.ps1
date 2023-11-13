@@ -8,7 +8,8 @@ function vcpkgDownload($port, $triplet) {
     Write-Host "vcpkg/vcpkg install `"$($port):$($triplet)`" --only-downloads ..." 
     $logs = vcpkg/vcpkg install `
         "$($port):$($triplet)" `
-        --only-downloads
+        --only-downloads `
+        --clean-downloads-after-build
 
     if ($LASTEXITCODE) {
         Write-Host "Failed"
