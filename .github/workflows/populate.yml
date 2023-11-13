@@ -33,7 +33,7 @@ jobs:
             --as-user `
             --name vcpkg-assets `
             --permissions aclmrw `
-            --expiry ((Get-Date -AsUtc).AddHours(6).ToString('o')) `
+            --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
           Write-Host "::add-mask::$key"
