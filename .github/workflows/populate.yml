@@ -24,11 +24,14 @@ jobs:
 
       - name: Get storage key
         shell: pwsh
+        env:
+          STORAGE_ACCOUNT_NAME: ${{ env.STORAGE_ACCOUNT_NAME }}
         run: |
+          Write-Host "STORAGE_ACCOUNT_NAME: $($env:STORAGE_ACCOUNT_NAME)"
           # Output is quoted, so ConvertFrom-Json to get the value without 
           # the quotes
           $key = az storage container generate-sas `
-            --account-name ${{ env.STORAGE_ACCOUNT_NAME }} `
+            --account-name $env:STORAGE_ACCOUNT_NAME `
             --auth-mode login `
             --as-user `
             --name vcpkg-assets `
@@ -41,6 +44,8 @@ jobs:
 
       - name: Populate artifacts
         shell: pwsh
+        env:
+          X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ env.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ env.STORAGE_KEY }},readwrite
         run: ./go.ps1 -OutFile result.json
       
       - name: Upload result log
