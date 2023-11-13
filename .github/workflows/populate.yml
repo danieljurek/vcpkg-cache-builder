@@ -43,7 +43,7 @@ jobs:
         shell: pwsh
         env:
           X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ env.STORAGE_KEY }},readwrite
-        run: ./go.ps1 -OutFile result.json -First 10
+        run: ./go.ps1 -OutFile result.json
       
       - name: Upload result log
         uses: actions/upload-artifact@v3
