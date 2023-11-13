@@ -1,14 +1,26 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/cpp
 {
-	"name": "C++",
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/powershell:1": {
-			"version": "7.1"
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"installDirectlyFromGitHubRelease": true,
+			"version": "latest"
 		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	"containerEnv": {
 	}
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

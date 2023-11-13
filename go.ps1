@@ -3,7 +3,7 @@
 
 
 # Clone vcpkg 
-gh repo clone microsoft/vcpkg
+git clone https://github.com/microsoft/vcpkg.git
 
 # Install vcpkg
 if ($IsWindows) { 
@@ -14,3 +14,4 @@ if ($IsWindows) {
 
 # List vcpkg ports
 $ports = ./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable
+
