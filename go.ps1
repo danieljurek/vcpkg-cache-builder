@@ -1,18 +1,18 @@
 #!/usr/bin/env pwsh
 param(
-    $Triplets = @('x64-linux'),
-    $OutFile = ''
+    $Triplets = 'x64-linux',
+    $OutFile = '',
+    $First = 0
 )
-
-function vcpkgInstall($port, $triplet) {
+function vcpkgDownload($port, $triplet) {
     Write-Host "vcpkg/vcpkg install `"$($port):$($triplet)`" --only-downloads ..." 
     $logs = vcpkg/vcpkg install `
         "$($port):$($triplet)" `
         --only-downloads
 
-    if ($LASTEXITCODE) { 
+    if ($LASTEXITCODE) {
         Write-Host "Failed"
-    } else { 
+    } else {
         Write-Host "Succeeded"
     }
 
@@ -34,16 +34,23 @@ $ports = ./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable
 
 Write-Host "Total ports $($ports.Count)"
 
+# Process ports
+$splitTriplets = $Triplets -split ','
 $results = @()
 $processed = 0
 foreach ($port in $ports.Keys) {
     $processed++
-    Write-Host "[$(($processed/$ports.Keys.Count).ToString('P'))] Port: $(targetPort.package_name)"
+    Write-Host "[$(($processed/$ports.Keys.Count).ToString('P'))] Port: $($targetPort.package_name)"
     $targetPort = $ports[$port]
 
-    foreach ($triplet in $Triplets) { 
-        $result = vcpkgInstall -port $targetPort.package_name -triplet $triplet
+    foreach ($triplet in $splitTriplets) { 
+        $result = vcpkgDownload -port $targetPort.package_name -triplet $triplet
         $results += $result
+    }
+
+    if ($First -and $processed -ge $First) { 
+        Write-Host "Processed first $processed ports, exiting"
+        break
     }
 }
 
@@ -53,8 +60,6 @@ if ($OutFile) {
 
 Write-Host "Summary: "
 Write-host "Ports: $($ports.Keys.Count)"
-Write-Host "Processed: $($results.Count)"
+Write-Host "Port * Triplets Processed: $($results.Count)"
 Write-Host "Succeeded: $($results.Where({$_.ExitCode -eq 0}).Count)"
 Write-Host "Failed: $($results.Where({$_.ExitCode -ne 0}).Count)"
-
-return $results
