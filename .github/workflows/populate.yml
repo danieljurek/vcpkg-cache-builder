@@ -12,7 +12,7 @@ jobs:
       id-token: write # Log into Azure
 
     steps:
-      - uses: actions/checkout
+      - uses: actions/checkout@v4
       
       - name: Az CLI login
         uses: azure/login@v1
