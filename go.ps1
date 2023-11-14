@@ -23,7 +23,7 @@ function vcpkgDownload($port, $triplet) {
         # Build never completes when using `--only-downloads` so perform 
         # manual cleaning
         Push-Location vcpkg
-        git clean -xdf buildtrees/ installed/ packages/
+        git clean -xdf buildtrees/ installed/ packages/ downloads/
         Pop-Location
     }
 
