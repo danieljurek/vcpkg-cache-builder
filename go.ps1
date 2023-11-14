@@ -48,7 +48,7 @@ Write-Host "Total ports $($ports.Count)"
 $splitTriplets = $Triplets -split ','
 $results = @()
 $processed = 0
-foreach ($port in $ports.Keys) {
+foreach ($port in $ports.Keys | Sort-Object) {
     $processed++
     Write-Host "[$(($processed/$ports.Keys.Count).ToString('P'))] Port: $($targetPort.package_name)"
     $targetPort = $ports[$port]

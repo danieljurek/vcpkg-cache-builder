@@ -40,6 +40,10 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Set core.longPaths
+        shell: pwsh
+        run: git config --system core.longPaths true
+
       - name: Get storage key
         shell: pwsh
         run: |
