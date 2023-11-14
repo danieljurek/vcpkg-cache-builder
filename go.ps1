@@ -2,29 +2,39 @@
 param(
     $Triplets = 'x64-linux',
     $OutFile = '',
-    $First = 0
+    $First = 0,
+    $DownloadPath = "$([System.IO.Path]::GetTempPath())/vcpkg-downloads"
 )
 function vcpkgDownload($port, $triplet) {
-    Write-Host "vcpkg/vcpkg install `"$($port):$($triplet)`" --only-downloads ..." 
-    $logs = vcpkg/vcpkg install `
-        "$($port):$($triplet)" `
-        --only-downloads `
-        --clean-downloads-after-build 
+    try { 
+        New-Item -ItemType Directory -Path $DownloadPath -Force
 
-    if ($LASTEXITCODE) {
-        Write-Host "Failed"
-    } else {
-        Write-Host "Succeeded"
+        Write-Host "vcpkg/vcpkg install `"$($port):$($triplet)`" --only-downloads ..." 
+        $logs = vcpkg/vcpkg install `
+            "$($port):$($triplet)" `
+            --only-downloads `
+            --clean-after-build 
+    
+    
+        if ($LASTEXITCODE) {
+            Write-Host "Failed"
+        } else {
+            Write-Host "Succeeded"
+        }
+    
+        return @{ Port = $port; Triplet = $triplet; Logs = $logs; ExitCode = $LASTEXITCODE }
+   
+    } finally { 
+        Get-ChildItem -Path $DownloadPath | Remove-Item -Recurse -Force
     }
 
-    return @{ Port = $port; Triplet = $triplet; Logs = $logs; ExitCode = $LASTEXITCODE }
 }
 
 # Clone vcpkg 
 git clone https://github.com/microsoft/vcpkg.git
 
 # Install vcpkg
-if ($IsWindows) { 
+if ($IsWindows) {
     .\vcpkg\bootstrap-vcpkg.bat
 } else {
     ./vcpkg/bootstrap-vcpkg.sh
