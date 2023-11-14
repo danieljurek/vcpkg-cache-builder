@@ -4,4 +4,3 @@ RUN mkdir -p /vcpkg-cache/downloads/
 
 # Set ARCH for vcpkg-bootstrap.sh to succeed
 ENV ARCH x86_64
-ENV VCPKG_DOWNLOADS /vcpkg-cache/downloads/

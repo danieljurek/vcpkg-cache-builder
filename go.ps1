@@ -2,19 +2,14 @@
 param(
     $Triplets = 'x64-linux',
     $OutFile = '',
-    $First = 0,
-    $DownloadPath = "$([System.IO.Path]::GetTempPath())/vcpkg-downloads"
+    $First = 0
 )
 function vcpkgDownload($port, $triplet) {
-    try { 
-        New-Item -ItemType Directory -Path $DownloadPath -Force
-
+    try {
         Write-Host "vcpkg/vcpkg install `"$($port):$($triplet)`" --only-downloads ..." 
         $logs = vcpkg/vcpkg install `
             "$($port):$($triplet)" `
-            --only-downloads `
-            --clean-after-build 
-    
+            --only-downloads
     
         if ($LASTEXITCODE) {
             Write-Host "Failed"
@@ -24,8 +19,12 @@ function vcpkgDownload($port, $triplet) {
     
         return @{ Port = $port; Triplet = $triplet; Logs = $logs; ExitCode = $LASTEXITCODE }
    
-    } finally { 
-        Get-ChildItem -Path $DownloadPath | Remove-Item -Recurse -Force
+    } finally {
+        # Build never completes when using `--only-downloads` so perform 
+        # manual cleaning
+        Push-Location vcpkg
+        git clean -xdf buildtrees/ installed/ packages/
+        Pop-Location
     }
 
 }
