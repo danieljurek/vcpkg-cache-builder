@@ -9,7 +9,7 @@ Don't let some unreliable mirror service interrupt development or CI work.
 
 _Logo by DALL-E_
 
-This tool uses the [Vcpkg asset cache feature](https://learn.microsoft.com/en-us/vcpkg/users/assetcaching) 
+This tool uses the [Vcpkg asset cache feature](https://learn.microsoft.com/en-us/vcpkg/concepts/asset-caching) 
 (experimental) and attempts to download all assets for a given point in time of
 Vcpkg.
 
