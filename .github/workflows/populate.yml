@@ -41,8 +41,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Set core.longPaths
+        if: runner.os == 'Windows'
         shell: pwsh
-        run: sudo git config --system core.longPaths true
+        run: git config --system core.longPaths true
 
       - name: Get storage key
         shell: pwsh
