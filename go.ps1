@@ -29,8 +29,14 @@ function vcpkgDownload($port, $triplet) {
 
 }
 
-# Clone vcpkg 
+# Clone vcpkg
+# TODO: Shallow clone, specify commitish from parameter
 git clone https://github.com/microsoft/vcpkg.git
+Push-Location vcpkg
+$commitish = git rev-parse HEAD
+Pop-Location 
+Write-Host "Current vcpkg commitish: $commitish"
+
 
 # Install vcpkg
 if ($IsWindows) {
@@ -65,6 +71,8 @@ foreach ($port in $ports.Keys | Sort-Object) {
 }
 
 if ($OutFile) {
+    # TODO: If a task is canceled can we trap and try to write the log? 
+    # Otherwise, write a log file for each port.
     $results | ConvertTo-Json | Set-Content $OutFile
 }
 
@@ -73,3 +81,6 @@ Write-host "Ports: $($ports.Keys.Count)"
 Write-Host "Port * Triplets Processed: $($results.Count)"
 Write-Host "Succeeded: $($results.Where({$_.ExitCode -eq 0}).Count)"
 Write-Host "Failed: $($results.Where({$_.ExitCode -ne 0}).Count)"
+
+# Ensure that the last exit code is 0 or CI will think the job failed
+exit 0
