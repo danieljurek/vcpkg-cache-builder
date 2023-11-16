@@ -45,15 +45,20 @@ I'm currently experimenting with hosting caches in an Azure Storage account that
 is publicly accessible. If it becomes too popular I might need help with 
 hosting.
 
+Set the following variables in your development/CI environment to start using 
+the read-only public cache immediately: 
+
+**bash:**
 ```bash
 export X_VCPKG_ASSET_SOURCES="x-azurl,https://djurekvcpkgcachebuilder.blob.core.windows.net/vcpkg-assets,,read"
 ```
 
+**pwsh:**
 ```pwsh
 $env:X_VCPKG_ASSET_SOURCES="x-azurl,https://djurekvcpkgcachebuilder.blob.core.windows.net/vcpkg-assets,,read"
 ```
 
-Then when you run `vcpkg install` with this environment variable set, vcpkg will
+When you run `vcpkg install` with this environment variable set, vcpkg will
 attempt to download source assets from the blob storage account.
 
 ### Fork and run it yourself
