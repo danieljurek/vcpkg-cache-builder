@@ -23,10 +23,26 @@ function vcpkgDownload($port, $triplet) {
         # Build never completes when using `--only-downloads` so perform 
         # manual cleaning
         Push-Location vcpkg
-        git clean -xdf buildtrees/ installed/ packages/ downloads/
+        git clean -xdf buildtrees/ installed/ packages/ downloads/ | Out-Null
         Pop-Location
     }
 
+}
+
+function getFeatures($port) { 
+    $vcpkgJsonLocation = "./vcpkg/ports/$port/vcpkg.json"
+    if (!(Test-Path $vcpkgJsonLocation)) { 
+        return @()
+    }
+
+    $vcpkgSpec = Get-Content ./vcpkg/ports/$port/vcpkg.json `
+        | ConvertFrom-Json -AsHashtable
+    
+    if ($vcpkgSpec.ContainsKey('features')) { 
+        return $vcpkgSpec.features.Keys
+    }
+
+    return @()
 }
 
 # Clone vcpkg
@@ -59,9 +75,16 @@ foreach ($port in $ports.Keys | Sort-Object) {
     Write-Host "[$(($processed/$ports.Keys.Count).ToString('P'))] Port: $($targetPort.package_name)"
     $targetPort = $ports[$port]
 
-    foreach ($triplet in $splitTriplets) { 
-        $result = vcpkgDownload -port $targetPort.package_name -triplet $triplet
-        $results += $result
+    foreach ($triplet in $splitTriplets) {
+        $features = getFeatures $targetPort.package_name
+
+        if (!$features) { 
+            $results += vcpkgDownload -port $targetPort.package_name -triplet $triplet
+        } else { 
+            foreach($feature in $features) { 
+                $results += vcpkgDownload -port "$($targetPort.package_name)[$feature]" -triplet $triplet
+            }
+        }
     }
 
     if ($First -and $processed -ge $First) { 
