@@ -8,11 +8,10 @@ $marker = ''
 
 while($true) {
     $blobResult = az storage blob list `
-    --account-name $AccountName `
-    --container-name $ContainerName `
-    --auth-mode login `
-    --num-results 5000 `
-    --marker "$marker" 2>&1
+        --account-name $AccountName `
+        --container-name $ContainerName `
+        --num-results 5000 `
+        --marker "$marker" 2>&1
 
     # Stderr has the marker
     $markerOutput = $blobResult.Where({ $_ -is [System.Management.Automation.ErrorRecord]})
@@ -28,7 +27,7 @@ while($true) {
         break
     }
 
-    # Example output - 
+    # Example output -
 
     # WARNING: Next Marker:
     # WARNING: <marker>
