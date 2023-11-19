@@ -13,6 +13,10 @@ while($true) {
         --num-results 5000 `
         --marker "$marker" 2>&1
 
+    if ($LASTEXITCODE) { 
+        Write-Error "az storage blob list failed with exit code $LASTEXITCODE"
+    }
+
     # Stderr has the marker
     $markerOutput = $blobResult.Where({ $_ -is [System.Management.Automation.ErrorRecord]})
     
