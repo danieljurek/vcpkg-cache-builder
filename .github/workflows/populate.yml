@@ -25,13 +25,13 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get storage key
+      - name: Get storage token
         id: get-storage-token
         shell: pwsh
         run: |
           # Output is quoted, so ConvertFrom-Json to get the value without 
           # the quotes
-          $key = az storage container generate-sas `
+          $token = az storage container generate-sas `
             --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
             --auth-mode login `
             --as-user `
@@ -40,9 +40,9 @@ jobs:
             --expiry ((Get-Date -AsUTC).AddHours(7).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
-          Write-Host "::add-mask::$key"
-          Write-Host "Key Length: $($key.Length)"
-          "storage-token=$key" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+          Write-Host "::add-mask::$token"
+          Write-Host "Token Length: $($token.Length)"
+          "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
 
       - name: Try listing blobs...
         shell: pwsh
