@@ -91,6 +91,13 @@ jobs:
         shell: pwsh
         run: git config --system core.longPaths true
 
+      - name: Az CLI login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       # TODO: DRY this up
       - name: Get storage token
         id: get-storage-token
