@@ -24,9 +24,10 @@ jobs:
       - name: List artifacts that need to be populated
         shell: pwsh
         run: |
+          az account show
           ./Get-UncachedPorts.ps1 `
-            -AccountName ${{ vars.STORAGE_ACCOUNT_NAME }} `
-            -ContainerName vcpkg-assets | Set-Content artifacts-to-populate.txt
+            -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
+            -ContainerName 'vcpkg-assets' | Set-Content artifacts-to-populate.txt
 
       - name: Upload artifacts-to-populate.txt
         uses: actions/upload-artifact@v3
