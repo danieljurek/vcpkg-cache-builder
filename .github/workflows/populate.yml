@@ -97,7 +97,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts-to-populate
-          path: artifacts-to-populate.txt
 
       - name: Populate artifacts
         shell: pwsh
