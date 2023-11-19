@@ -90,25 +90,25 @@ jobs:
         shell: pwsh
         run: git config --system core.longPaths true
 
-        # TODO: DRY this up
-        - name: Get storage token
-          id: get-storage-token
-          shell: pwsh
-          run: |
-            # Output is quoted, so ConvertFrom-Json to get the value without 
-            # the quotes
-            $token = az storage container generate-sas `
-              --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
-              --auth-mode login `
-              --as-user `
-              --name vcpkg-assets `
-              --permissions aclmrw `
-              --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
-              --output json | ConvertFrom-Json
+      # TODO: DRY this up
+      - name: Get storage token
+        id: get-storage-token
+        shell: pwsh
+        run: |
+          # Output is quoted, so ConvertFrom-Json to get the value without 
+          # the quotes
+          $token = az storage container generate-sas `
+            --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
+            --auth-mode login `
+            --as-user `
+            --name vcpkg-assets `
+            --permissions aclmrw `
+            --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
+            --output json | ConvertFrom-Json
 
-            Write-Host "::add-mask::$token"
-            Write-Host "Token Length: $($token.Length)"
-            "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+          Write-Host "::add-mask::$token"
+          Write-Host "Token Length: $($token.Length)"
+          "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
 
       - name: Download artifacts-to-populate.txt
         uses: actions/download-artifact@v3
