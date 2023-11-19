@@ -13,7 +13,7 @@ jobs:
       contents: read
 
     outputs:
-      storage-key: ${{ steps.get-storage-key.outputs.storage-key }}
+      storage-token: ${{ steps.get-storage-token.outputs.storage-token }}
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Get storage key
-        id: get-storage-key
+        id: get-storage-token
         shell: pwsh
         run: |
           # Output is quoted, so ConvertFrom-Json to get the value without 
@@ -42,14 +42,14 @@ jobs:
 
           Write-Host "::add-mask::$key"
           Write-Host "Key Length: $($key.Length)"
-          "storage-key=$key" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+          "storage-token=$key" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
 
       - name: Try listing blobs...
         shell: pwsh
         env:
-          AZURE_STORAGE_KEY: ${{ steps.get-storage-key.outputs.storage-key }}
+          AZURE_STORAGE_SAS_TOKEN: ${{ steps.get-storage-token.outputs.storage-token }}
         run: |
-          Write-Host "AZURE_STORAGE_KEY Length: $($env:AZURE_STORAGE_KEY.Length)"
+          Write-Host "AZURE_STORAGE_SAS_TOKEN Length: $($env:AZURE_STORAGE_SAS_TOKEN.Length)"
           az storage blob list `
             --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
             --container-name vcpkg-assets `
@@ -60,7 +60,7 @@ jobs:
       - name: List artifacts that need to be populated
         shell: pwsh
         env:
-          AZURE_STORAGE_KEY: ${{ steps.get-storage-key.outputs.storage-key }}
+          AZURE_STORAGE_SAS_TOKEN: ${{ steps.get-storage-token.outputs.storage-token }}
         run: |
           az account show
           ./Get-UncachedPorts.ps1 `
@@ -115,7 +115,7 @@ jobs:
       - name: Populate artifacts
         shell: pwsh
         env:
-          X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ needs.get-unpopulated-ports.outputs.storage-key }},readwrite
+          X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ needs.get-unpopulated-ports.outputs.storage-token }},readwrite
         run: >-
           ./go.ps1 
           -OutFile result-${{ matrix.os }}-${{ matrix.triplet }}.json 
