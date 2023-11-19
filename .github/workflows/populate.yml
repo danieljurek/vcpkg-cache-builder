@@ -36,7 +36,7 @@ jobs:
 
   build-cache:
     environment: build-cache
-    depends-on: get-unpopulated-ports
+    needs: get-unpopulated-ports
 
     strategy:
       fail-fast: false
