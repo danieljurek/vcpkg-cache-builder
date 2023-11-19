@@ -12,6 +12,8 @@ foreach($blob in $allBlobs) {
     $blobHash[$blob.name] = $blob
 }
 
+Write-Host "Found $($blobHash.Count) blobs in $ContainerName"
+
 # Clone vcpkg
 # TODO: Shallow clone, specify commitish from parameter
 git clone https://github.com/microsoft/vcpkg.git | Out-Null
@@ -40,6 +42,8 @@ foreach ($file in $portFiles) {
     }
 }
 
+Write-Host "Found $($allShas.Count) unique SHA512 hashes in vcpkg/ports"
+
 $missingShas = @()
 foreach ($sha512 in $allShas.Keys) { 
     if (!$blobHash.ContainsKey($sha512)) { 
@@ -59,5 +63,7 @@ foreach ($sha512 in $missingShas) {
         }
     }
 }
+
+Write-Host "Found $($portNames.Count) ports with missing blobs"
 
 return $portNames.Keys | Sort-Object
