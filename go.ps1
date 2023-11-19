@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
 param(
+    $Ports = @(),
     $Triplets = 'x64-linux',
     $OutFile = '',
     $First = 0,
@@ -43,7 +44,7 @@ function vcpkgDownload($port, $triplet) {
             Triplet = $triplet; 
             Logs = $logs; 
             ExitCode = $LASTEXITCODE; 
-            TotalSeconds = $duration.TotalSeconds;
+            VcpkgSeconds = $duration.TotalSeconds;
             SetupSeconds = $setupDuration.TotalSeconds;
         }
    
@@ -89,28 +90,29 @@ Pop-Location
 
 
 # List vcpkg ports
-$ports = ./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable
+if (!$Ports) { 
+    $Ports = (./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable).Keys | Sort-Object
+}
 
-Write-Host "Total ports $($ports.Count)"
+Write-Host "Total ports $($Ports.Count)"
 
 # Process ports
 $splitTriplets = $Triplets -split ','
 $results = @()
 $toRun = @()
 $processed = 0
-foreach ($port in $ports.Keys | Sort-Object) {
+foreach ($port in $Ports) {
     $processed++
-    $targetPort = $ports[$port]
 
     foreach ($triplet in $splitTriplets) {
-        $features = getFeatures $targetPort.package_name
+        $features = getFeatures $port
 
         if (!$features) { 
-            $toRun += @{ Port = $targetPort.package_name; Triplet = $triplet }
+            $toRun += @{ Port = $port; Triplet = $triplet }
         } else { 
             foreach($feature in $features) { 
-                $toRun += @{ 
-                    Port = "$($targetPort.package_name)[$feature]"; 
+                $toRun += @{
+                    Port = "$port[$feature]"; 
                     Triplet = $triplet 
                 }
             }
