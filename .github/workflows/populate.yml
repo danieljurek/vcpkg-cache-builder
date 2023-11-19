@@ -126,7 +126,7 @@ jobs:
       - name: Populate artifacts
         shell: pwsh
         env:
-          X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ steps.outputs.storage-token }},readwrite
+          X_VCPKG_ASSET_SOURCES: x-azurl,https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-assets,${{ steps.get-storage-token.outputs.storage-token }},readwrite
         run: >-
           ./go.ps1 
           -OutFile result-${{ matrix.os }}-${{ matrix.triplet }}.json 
