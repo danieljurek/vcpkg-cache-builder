@@ -3,7 +3,7 @@ param(
     $ContainerName
 )
 
-$allBlobs = ./Get-AllBlobs.ps1 `
+$allBlobs = ."$PSScriptRoot/Get-AllBlobs.ps1" `
     -AccountName $AccountName `
     -ContainerName $ContainerName
 
