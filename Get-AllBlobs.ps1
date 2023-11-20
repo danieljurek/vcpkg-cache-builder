@@ -11,36 +11,21 @@ while($true) {
         --account-name $AccountName `
         --container-name $ContainerName `
         --num-results 5000 `
-        --marker "$marker" 2>&1
-
-    if ($LASTEXITCODE) { 
+        --marker "$marker" `
+        --show-next-marker
+ 
+    if ($LASTEXITCODE) {
+        $blobResult | Write-Host
         Write-Error "az storage blob list failed with exit code $LASTEXITCODE"
     }
 
-    # Stderr has the marker
-    $markerOutput = $blobResult.Where({ $_ -is [System.Management.Automation.ErrorRecord]})
-    
-    # Normal output has the 
-    $blobs = $blobResult.Where({ $_ -isnot [System.Management.Automation.ErrorRecord]}) `
-        | ConvertFrom-Json -AsHashtable
+    $blobs = $blobResult | ConvertFrom-Json -AsHashtable
+    $allBlobs += $blobs.Where({ !$_.ContainsKey('nextMarker') })
 
-    $allBlobs += $blobs
+    Write-Host "Found $($allBlobs.Count) blobs so far..."
+    $marker = $blobs[-1].nextMarker
 
-    if (!$markerOutput) { 
-        # No next marker, quit
-        break
-    }
-
-    # Example output -
-
-    # WARNING: Next Marker:
-    # WARNING: <marker>
-
-    # Fetches <marker> from the output
-    $marker = ($markerOutput[1] -split ' ')[1]
-
-    if (!$marker) { 
-        # No next marker, quit
+    if (!$marker) {
         break
     }
 }
