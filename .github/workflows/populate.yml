@@ -47,6 +47,7 @@ jobs:
           AZURE_STORAGE_SAS_TOKEN: ${{ steps.get-storage-token.outputs.storage-token }}
         run: |
           az --version
+          $PSVersionTable
           ./Get-UncachedPorts.ps1 `
             -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
             -ContainerName 'vcpkg-assets' | Set-Content artifacts-to-populate.txt
