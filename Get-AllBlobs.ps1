@@ -5,7 +5,7 @@ param(
 
 $allBlobs = @()
 $marker = ''
-
+Write-Host "`$PSNativeCommandArgumentPassing = $PSNativeCommandArgumentPassing"
 while($true) {
     $blobResult = az storage blob list `
         --account-name $AccountName `
