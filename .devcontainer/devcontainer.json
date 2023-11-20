@@ -6,13 +6,16 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/powershell:1": {
-			"version": "latest"
+			// Version used in GitHub Actions
+			"version": "7.2.16"
 		},
 		"ghcr.io/devcontainers/features/github-cli:1": {
 			"installDirectlyFromGitHubRelease": true,
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers/features/azure-cli:1": {}
+		"ghcr.io/devcontainers/features/azure-cli:1": {
+			"version": "2.53.1"
+		}
 	},
 	"customizations": {
 		"vscode": {
