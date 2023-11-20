@@ -5,18 +5,19 @@ param(
 
 $allBlobs = @()
 $marker = ''
-Write-Host "`$PSNativeCommandArgumentPassing = $PSNativeCommandArgumentPassing"
+
 while($true) {
     $blobResult = az storage blob list `
         --account-name $AccountName `
         --container-name $ContainerName `
         --num-results 5000 `
-        --marker "$marker" `
-        --show-next-marker
+        --show-next-marker `
+        --marker `"$marker`"
  
     if ($LASTEXITCODE) {
         $blobResult | Write-Host
         Write-Error "az storage blob list failed with exit code $LASTEXITCODE"
+        exit 1
     }
 
     $blobs = $blobResult | ConvertFrom-Json -AsHashtable
