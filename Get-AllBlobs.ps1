@@ -11,7 +11,7 @@ while($true) {
         --account-name $AccountName `
         --container-name $ContainerName `
         --num-results 5000 `
-        --marker "$marker" `
+        --marker "`'$marker`'" `
         --show-next-marker
  
     if ($LASTEXITCODE) {
