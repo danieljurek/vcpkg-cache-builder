@@ -23,7 +23,6 @@ while($true) {
     $blobs = $blobResult | ConvertFrom-Json -AsHashtable
     $allBlobs += $blobs.Where({ !$_.ContainsKey('nextMarker') })
 
-    Write-Host "Found $($allBlobs.Count) blobs so far..."
     $marker = $blobs[-1].nextMarker
 
     if (!$marker) {
