@@ -2,10 +2,11 @@ name: Populate
 
 on:
   workflow_dispatch:
-    Install:
-      description: Run build (takes longer, more thorough)
-      type: boolean
-      required: false
+    inputs: 
+      Install:
+        description: Run build (takes longer, more thorough)
+        type: boolean
+        required: false
 
 jobs:
   get-unpopulated-ports:
