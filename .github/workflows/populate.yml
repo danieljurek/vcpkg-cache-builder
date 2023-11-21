@@ -161,7 +161,7 @@ jobs:
           -OutFile result-${{ matrix.os }}-${{ matrix.triplets }}.json 
           -Triplets "${{ matrix.triplets }}"
           -Ports (Get-Content artifacts-to-populate.txt)
-          -Install:${{ inputs.Install }}
+          -Install:$${{ inputs.Install }}
       
       - name: Upload result log
         uses: actions/upload-artifact@v3
