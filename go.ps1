@@ -22,20 +22,20 @@ function vcpkgDownload($port, $triplet, $install) {
             } else { 
                 Copy-Item ./vcpkg $worktreeLocation/vcpkg
             }
-    
         }
         Set-Location $worktreeLocation
 
         $logs = @()
-        $extraParameters = ' --only-downloads'
+        $extraParameters = '--only-downloads'
         if ($install) { 
             $extraParameters = ''
         }
+        $portAndTriplet =  "$($port):$($triplet)" 
         $duration = Measure-Command {
-            $logs = ./vcpkg install "$($port):$($triplet)" $extraParameters
+            $logs = & ./vcpkg install $portAndTriplet $extraParameters --debug
          }
 
-        $logLine = "vcpkg install `"$($port):$($triplet)`" $extraParameters" 
+        $logLine = "vcpkg install $portAndTriplet $extraParameters" 
         if ($LASTEXITCODE) {
             $logLine += " Failed"
         } else {
@@ -137,8 +137,8 @@ $results = $toRun | ForEach-Object -ThrottleLimit $Parallel -Parallel {
     # Workaround to enable function call in parallel block. The function could
     # also be put inline, but it's possible to argue that this is more readable.
     ${function:vcpkgDownload} = $using:stringVcpkgDownload
-    $install = $using:Install
-    vcpkgDownload -port $_.Port -triplet $_.Triplet -install $install
+    $installPort = $using:Install
+    vcpkgDownload -port $_.Port -triplet $_.Triplet -install $installPort
 }
 
 if ($OutFile) {
