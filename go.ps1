@@ -32,7 +32,7 @@ function vcpkgDownload($port, $triplet, $install) {
         }
         $portAndTriplet =  "$($port):$($triplet)" 
         $duration = Measure-Command {
-            $logs = & ./vcpkg install $portAndTriplet $extraParameters --debug
+            $logs = & ./vcpkg install $portAndTriplet $extraParameters
          }
 
         $logLine = "vcpkg install $portAndTriplet $extraParameters" 
