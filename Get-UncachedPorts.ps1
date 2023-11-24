@@ -3,6 +3,8 @@ param(
     $ContainerName
 )
 
+$PSNativeCommandArgumentPassing = 'Legacy'
+
 $allBlobs = ."$PSScriptRoot/Get-AllBlobs.ps1" `
     -AccountName $AccountName `
     -ContainerName $ContainerName
