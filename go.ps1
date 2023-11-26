@@ -1,10 +1,10 @@
 #!/usr/bin/env pwsh
 param(
     $Ports = @(),
+    $IgnorePorts = @(),
     $Triplets = 'x64-linux',
     $OutFile = '',
     $First = 0,
-    $Parallel = 2,
     [switch] $Install
 )
 
@@ -99,6 +99,10 @@ if (!$Ports) {
     $Ports = (./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable).Keys | Sort-Object
 }
 
+if ($IgnorePorts) { 
+    $Ports = $Ports | Where-Object { $IgnorePorts -notcontains $_ }
+}
+
 Write-Host "Total ports $($Ports.Count)"
 
 # Process ports
@@ -132,12 +136,7 @@ foreach ($port in $Ports) {
 
 Write-Host "Ports to download: $($toRun.Count)"
 
-$stringVcpkgDownload = ${function:vcpkgDownload}.ToString()
-$results = $toRun | ForEach-Object -ThrottleLimit $Parallel -Parallel {
-    # Workaround to enable function call in parallel block. The function could
-    # also be put inline, but it's possible to argue that this is more readable.
-    ${function:vcpkgDownload} = $using:stringVcpkgDownload
-    $installPort = $using:Install
+$results = $toRun | ForEach-Object {
     vcpkgDownload -port $_.Port -triplet $_.Triplet -install $installPort
 }
 

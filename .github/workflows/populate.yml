@@ -2,11 +2,6 @@ name: Populate
 
 on:
   workflow_dispatch:
-    inputs: 
-      Install:
-        description: Run build (takes longer, more thorough)
-        type: boolean
-        required: false
 
 jobs:
   get-unpopulated-ports:
@@ -160,6 +155,7 @@ jobs:
           -OutFile result-${{ matrix.os }}-${{ matrix.triplets }}.json 
           -Triplets "${{ matrix.triplets }}"
           -Ports (Get-Content artifacts-to-populate.txt)
+          -IgnorePorts (Get-Content ignore-ports.txt)
       
       - name: Upload result log
         uses: actions/upload-artifact@v3
@@ -324,6 +320,7 @@ jobs:
           -OutFile result-${{ matrix.os }}-${{ matrix.triplets }}.json 
           -Triplets "${{ matrix.triplets }}"
           -Ports (Get-Content artifacts-to-build.txt)
+          -IgnorePorts (Get-Content ignore-ports.txt)
           -Install
       
       - name: Upload result log
