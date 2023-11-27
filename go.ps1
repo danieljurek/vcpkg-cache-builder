@@ -10,20 +10,19 @@ param(
 
 function vcpkgDownload($port, $triplet, $install) {
     
-    $originalLocation = Get-Location
     try {
-        Set-Location ./vcpkg 
-        $setupDuration = Measure-Command { 
-            $worktreeLocation = "../worktrees/$triplet/$($port.Replace('[', '_').Replace(']', '_'))"
-            git worktree add $worktreeLocation 2>&1 | Out-Null
+        Set-Location $PSScriptRoot/vcpkg 
+        # $setupDuration = Measure-Command { 
+        #     $worktreeLocation = "../worktrees/$triplet/$($port.Replace('[', '_').Replace(']', '_'))"
+        #     git worktree add $worktreeLocation 2>&1 | Out-Null
     
-            if ($IsWindows) { 
-                Copy-Item ./vcpkg.exe $worktreeLocation/vcpkg.exe
-            } else { 
-                Copy-Item ./vcpkg $worktreeLocation/vcpkg
-            }
-        }
-        Set-Location $worktreeLocation
+        #     if ($IsWindows) { 
+        #         Copy-Item ./vcpkg.exe $worktreeLocation/vcpkg.exe
+        #     } else { 
+        #         Copy-Item ./vcpkg $worktreeLocation/vcpkg
+        #     }
+        # }
+        # Set-Location $worktreeLocation
 
         $logs = @()
         $extraParameters = '--only-downloads'
@@ -50,14 +49,14 @@ function vcpkgDownload($port, $triplet, $install) {
             Logs = $logs; 
             ExitCode = $LASTEXITCODE; 
             VcpkgSeconds = $duration.TotalSeconds;
-            SetupSeconds = $setupDuration.TotalSeconds;
+            # SetupSeconds = $setupDuration.TotalSeconds;
         }
    
     } finally {
-        Set-Location $originalLocation/vcpkg
-        git worktree remove $worktreeLocation 2>&1 | Write-Host
+        # Set-Location $originalLocation/vcpkg
+        # git worktree remove $worktreeLocation 2>&1 | Write-Host
 
-        Set-Location $originalLocation
+        # Set-Location $originalLocation
     }
 
 }
@@ -137,7 +136,7 @@ foreach ($port in $Ports) {
 Write-Host "Ports to download: $($toRun.Count)"
 
 $results = $toRun | ForEach-Object {
-    vcpkgDownload -port $_.Port -triplet $_.Triplet -install $installPort
+    vcpkgDownload -port $_.Port -triplet $_.Triplet -install $Install
 }
 
 if ($OutFile) {
