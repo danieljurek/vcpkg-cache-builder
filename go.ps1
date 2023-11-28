@@ -2,28 +2,16 @@
 param(
     $Ports = @(),
     $IgnorePorts = @(),
-    $Triplets = 'x64-linux',
+    $Triplets = 'x64-linux', # 'x64-linux,x64-uwp,x64-windows-static,x64-windows,x86-windows,arm64-windows',
     $OutFile = '',
     $First = 0,
     [switch] $Install
 )
 
 function vcpkgDownload($port, $triplet, $install) {
-    
+    # TODO: If running low on disk space, run git clean -xdf    
     try {
         Set-Location $PSScriptRoot/vcpkg 
-        # $setupDuration = Measure-Command { 
-        #     $worktreeLocation = "../worktrees/$triplet/$($port.Replace('[', '_').Replace(']', '_'))"
-        #     git worktree add $worktreeLocation 2>&1 | Out-Null
-    
-        #     if ($IsWindows) { 
-        #         Copy-Item ./vcpkg.exe $worktreeLocation/vcpkg.exe
-        #     } else { 
-        #         Copy-Item ./vcpkg $worktreeLocation/vcpkg
-        #     }
-        # }
-        # Set-Location $worktreeLocation
-
         $logs = @()
         $extraParameters = '--only-downloads'
         if ($install) { 
@@ -31,34 +19,29 @@ function vcpkgDownload($port, $triplet, $install) {
         }
         $portAndTriplet =  "$($port):$($triplet)" 
         $duration = Measure-Command {
-            $logs = & ./vcpkg install $portAndTriplet $extraParameters
+            $logs = & ./vcpkg install $portAndTriplet --allow-unsupported $extraParameters
          }
 
-        $logLine = "vcpkg install $portAndTriplet $extraParameters" 
+        $logLine = "vcpkg install $portAndTriplet --allow-unsupported $extraParameters" 
         if ($LASTEXITCODE) {
             $logLine += " Failed"
         } else {
             $logLine += " Succeeded"
         }
-        $logLine += " (Vcpkg time: $($duration.TotalSeconds)s, Setup time: $($setupDuration.TotalSeconds)s)"
+        $logLine += " (Vcpkg time: $($duration.TotalSeconds)s)"
         Write-host $logLine
-
-        return @{ 
-            Port = $port; 
-            Triplet = $triplet; 
-            Logs = $logs; 
-            ExitCode = $LASTEXITCODE; 
-            VcpkgSeconds = $duration.TotalSeconds;
-            # SetupSeconds = $setupDuration.TotalSeconds;
-        }
    
     } finally {
-        # Set-Location $originalLocation/vcpkg
-        # git worktree remove $worktreeLocation 2>&1 | Write-Host
 
-        # Set-Location $originalLocation
     }
 
+    return @{ 
+        Port = $port; 
+        Triplet = $triplet; 
+        Logs = $logs; 
+        ExitCode = $LASTEXITCODE; 
+        VcpkgSeconds = $duration.TotalSeconds;
+    }
 }
 
 function getFeatures($port) { 
