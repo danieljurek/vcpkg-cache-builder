@@ -8,6 +8,9 @@ jobs:
     environment: build-cache
     runs-on: ubuntu-latest
 
+    outputs:
+      should-download: ${{ steps.list-ports.outputs.has-ports }}
+
     permissions:
       id-token: write # Log into Azure
       contents: read
@@ -44,7 +47,8 @@ jobs:
       # TODO: Prepare vcpkg in a separate step and output the current SHA for 
       # use in later jobs
 
-      - name: List artifacts that need to be populated
+      - name: List ports that need to be populated
+        id: list-ports
         shell: pwsh
         env:
           AZURE_STORAGE_SAS_TOKEN: ${{ steps.get-storage-token.outputs.storage-token }}
@@ -55,7 +59,14 @@ jobs:
             -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
           | Set-Content artifacts-to-populate.txt
 
+          if (Test-Path ./artifacts-to-populate.txt) {
+            "has-ports=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+          } else {
+            "has-ports=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+          }
+
       - name: Upload artifacts-to-populate.txt
+        if: steps.list-ports.outputs.has-ports == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: artifacts-to-populate
@@ -64,6 +75,7 @@ jobs:
   download-cache:
     environment: build-cache
     needs: get-unpopulated-ports
+    if: needs.get-unpopulated-ports.outputs.should-download == 'true'
 
     strategy:
       fail-fast: false
