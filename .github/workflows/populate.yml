@@ -87,10 +87,10 @@ jobs:
             triplets: x64-linux-dynamic
           - os: ubuntu-22.04
             triplets: arm64-linux
-            apt-get-pzckages: g++-aarch64-linux-gnu
+            apt-get-packages: g++-aarch64-linux-gnu
           - os: ubuntu-22.04
             triplets: arm-linux
-            apt-get-pzckages: g++-arm-linux-gnueabihf 
+            apt-get-packages: g++-arm-linux-gnueabihf 
           - os: windows-2022
             triplets: x64-uwp
           - os: windows-2022
