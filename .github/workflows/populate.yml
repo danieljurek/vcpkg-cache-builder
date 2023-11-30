@@ -51,7 +51,9 @@ jobs:
         run: |
           ./Get-UncachedPorts.ps1 `
             -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
-            -ContainerName 'vcpkg-assets' | Set-Content artifacts-to-populate.txt
+            -ContainerName 'vcpkg-assets' `
+            -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
+          | Set-Content artifacts-to-populate.txt
 
       - name: Upload artifacts-to-populate.txt
         uses: actions/upload-artifact@v3
@@ -180,3 +182,61 @@ jobs:
       #   with:
       #     name: result-log-download
       #     path: result-*.json
+
+      download-report:
+        environment: build-cache
+        needs: download-cache
+        runs-on: ubuntu-latest
+        
+        permissions:
+          id-token: write # Log into Azure
+          contents: read
+    
+        steps:
+          - uses: actions/checkout@v4
+          
+          - name: Az CLI login
+            uses: azure/login@v1
+            with:
+              client-id: ${{ secrets.AZURE_CLIENT_ID }}
+              tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+              subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+          - name: Get storage token
+            id: get-storage-token
+            shell: pwsh
+            run: |
+              # Output is quoted, so ConvertFrom-Json to get the value without 
+              # the quotes
+              $token = az storage container generate-sas `
+                --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
+                --auth-mode login `
+                --as-user `
+                --name vcpkg-assets `
+                --permissions aclmrw `
+                --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
+                --output json | ConvertFrom-Json
+    
+              Write-Host "::add-mask::$token"
+              Write-Host "Token Length: $($token.Length)"
+              "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+    
+          # TODO: Prepare vcpkg in a separate step and output the current SHA for 
+          # use in later jobs
+    
+          - name: List artifacts that need to be populated
+            shell: pwsh
+            env:
+              AZURE_STORAGE_SAS_TOKEN: ${{ steps.get-storage-token.outputs.storage-token }}
+            run: |
+              ./Get-UncachedPorts.ps1 `
+                -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
+                -ContainerName 'vcpkg-assets' `
+                -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
+                -ReportFile download-report.json
+    
+          - name: Upload download-report.json
+            uses: actions/upload-artifact@v3
+            with:
+              name: download-report
+              path: download-report.json

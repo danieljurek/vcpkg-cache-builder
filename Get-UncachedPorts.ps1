@@ -1,6 +1,8 @@
 param(
     $AccountName,
-    $ContainerName
+    $ContainerName,
+    $ReportFile,
+    $IgnoreHashes = @()
 )
 
 $PSNativeCommandArgumentPassing = 'Legacy'
@@ -25,7 +27,7 @@ $commitish = git rev-parse HEAD
 Write-Host "Current vcpkg commitish: $commitish"
 Pop-Location
 
-$allShas = @{}
+$allShas = [ordered]@{}
 
 $portFiles = Get-ChildItem vcpkg/ports -File -Recurse
 
@@ -33,8 +35,12 @@ $portFiles = Get-ChildItem vcpkg/ports -File -Recurse
 foreach ($file in $portFiles) { 
     foreach ($line in Get-Content $file) { 
         if ($line -match '[a-fA-F0-9]{128}') { 
-            foreach ($match in $matches.Values) { 
-                if ($allShas.ContainsKey($match)) { 
+            foreach ($match in $matches.Values) {
+                if ($IgnoreHashes -contains $match) { 
+                    # Exclude entries in $IgnoreHashes
+                    continue
+                }
+                if ($allShas.Contains($match)) { 
                     $allShas[$match] += @($file)
                 } else { 
                     $allShas[$match] = @($file)
@@ -59,13 +65,22 @@ foreach ($sha512 in $missingShas) {
     # Extract port name, it's the first directory after vcpkg/ports/<portname>/possible/other/dirs
     $directories = $allShas[$sha512].Directory.FullName.Split($separator)
     for ($i = $directories.Length - 2; $i -gt 0; $i--) { 
-        if ($directories[$i] -eq "ports") { 
-            $portNames[$directories[$i + 1]] = $true
+        if ($directories[$i] -eq "ports") {
+            $portName = $directories[$i + 1] 
+            if ($portNames.ContainsKey($portName)) { 
+                $portNames[$portName] += @($sha512)
+            } else { 
+                $portNames[$portName] = @($sha512)
+            }
             break
         }
     }
 }
 
 Write-Host "Found $($portNames.Count) ports with missing blobs"
+
+if ($ReportFile) { 
+    $portNames | ConvertTo-Json | Set-Content $ReportFile
+}
 
 return $portNames.Keys | Sort-Object
