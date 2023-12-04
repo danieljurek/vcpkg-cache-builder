@@ -24,7 +24,7 @@ function vcpkgDownload($port, $triplet, $install) {
         $portAndTriplet =  "$($port):$($triplet)" 
         Write-Host -NoNewline "vcpkg install $portAndTriplet $extraParameters`t"
         $duration = Measure-Command {
-            & ./vcpkg install $portAndTriplet $extraParameters 2>&1 > $logDirectory/vcpkg.log
+            & ./vcpkg install $portAndTriplet $extraParameters 2>&1 > "$logDirectory/vcpkg.log"
             
          }
 
