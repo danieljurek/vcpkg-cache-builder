@@ -215,7 +215,7 @@ jobs:
         run: >-
           azcopy copy
           logs/*
-          'https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-logs/${{ github.run_number }}/${{ github.run_attempt }}?${{ steps.get-storage-token-binary-cache.outputs.storage-token }}'
+          'https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-logs/${{ github.run_number }}/${{ github.run_attempt }}?${{ steps.get-storage-token-logs.outputs.storage-token }}'
           --recursive
           
 
