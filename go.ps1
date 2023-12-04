@@ -14,7 +14,11 @@ function vcpkgDownload($port, $triplet, $install) {
     try {
         $portFileName = $port.Replace('[', '_').Replace(']', '_')
         $logDirectory = New-Item -ItemType Directory -Force -Path "$PSScriptRoot/logs/$triplet/$portFileName/"
-        
+        Write-Host "$PSScriptRoot/logs/$triplet/$portFileName/"
+        if (!(Test-Path  "$PSScriptRoot/logs/$triplet/$portFileName/")) { 
+            Write-Error "Could not create folder -- $PSScriptRoot/logs/$triplet/$portFileName/"
+            exit 1
+        }
         Set-Location $PSScriptRoot/vcpkg 
 
         $extraParameters = '--only-downloads'
