@@ -1,6 +1,9 @@
 name: Populate
 
 on:
+  schedule:
+    # Use a start time that is unlikely to be popular
+    - cron: '11 0,12 * * *'
   workflow_dispatch:
 
 jobs:
@@ -189,11 +192,6 @@ jobs:
           -Ports (Get-Content artifacts-to-populate.txt)
           -IgnorePorts (Get-Content ignore-ports.txt)
       
-      # - name: Upload result log
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: result-log-download
-      #     path: result-*.json
 
   download-report:
     environment: build-cache
