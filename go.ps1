@@ -1,62 +1,51 @@
 #!/usr/bin/env pwsh
 param(
+    $Commitish = 'master',
     $Ports = @(),
     $IgnorePorts = @(),
     $Triplets = 'x64-linux',
-    $OutFile = '',
     $First = 0,
+    $CleanThresholdPercent = 0.10,
     [switch] $Install
 )
 
 function vcpkgDownload($port, $triplet, $install) {
     
     try {
+        $portFileName = $port.Replace('[', '_').Replace(']', '_')
+        $logDirectory = New-Item -ItemType Directory -Force -Path "$PSScriptRoot/logs/$triplet/$portFileName/"
+        
         Set-Location $PSScriptRoot/vcpkg 
-        # $setupDuration = Measure-Command { 
-        #     $worktreeLocation = "../worktrees/$triplet/$($port.Replace('[', '_').Replace(']', '_'))"
-        #     git worktree add $worktreeLocation 2>&1 | Out-Null
-    
-        #     if ($IsWindows) { 
-        #         Copy-Item ./vcpkg.exe $worktreeLocation/vcpkg.exe
-        #     } else { 
-        #         Copy-Item ./vcpkg $worktreeLocation/vcpkg
-        #     }
-        # }
-        # Set-Location $worktreeLocation
 
-        $logs = @()
         $extraParameters = '--only-downloads'
         if ($install) { 
             $extraParameters = ''
         }
         $portAndTriplet =  "$($port):$($triplet)" 
+        Write-Host -NoNewline "vcpkg install $portAndTriplet $extraParameters`t"
         $duration = Measure-Command {
-            $logs = & ./vcpkg install $portAndTriplet $extraParameters
+            & ./vcpkg install $portAndTriplet $extraParameters 2>&1 > $logDirectory/vcpkg.log
+            
          }
 
-        $logLine = "vcpkg install $portAndTriplet $extraParameters" 
         if ($LASTEXITCODE) {
-            $logLine += " Failed"
+            Write-Host -NoNewline "Failed"
         } else {
-            $logLine += " Succeeded"
+            Write-Host -NoNewline "Succeeded"
         }
-        $logLine += " (Vcpkg time: $($duration.TotalSeconds)s, Setup time: $($setupDuration.TotalSeconds)s)"
-        Write-host $logLine
+        Write-Host " (Vcpkg time: $(($duration.TotalSeconds).ToString('#.#s')))"
 
-        return @{ 
+        $result = [ordered]@{ 
             Port = $port; 
             Triplet = $triplet; 
-            Logs = $logs; 
             ExitCode = $LASTEXITCODE; 
             VcpkgSeconds = $duration.TotalSeconds;
-            # SetupSeconds = $setupDuration.TotalSeconds;
         }
+        $result | ConvertTo-Json -Depth 100 | Set-Content $logDirectory/results.json
+        return $result 
    
     } finally {
-        # Set-Location $originalLocation/vcpkg
-        # git worktree remove $worktreeLocation 2>&1 | Write-Host
-
-        # Set-Location $originalLocation
+        # TODO: probably can eliminate this
     }
 
 }
@@ -77,9 +66,21 @@ function getFeatures($port) {
     return @()
 }
 
+function ensureDiskSpace {
+    $disk = Get-PSDrive `
+        | Where-Object { $_.CurrentLocation } `
+        | Select-Object -First 1
+
+    $diskFreePercent = $disk.Free / ($disk.Used + $disk.Free)
+    if ($diskFreePercent -lt $CleanThresholdPercent) {
+        Write-Host "Disk free space $($diskFreePercent.ToString('.##')) below threshold $($CleanThresholdPercent.ToString('.##'))... cleaning"
+        Set-Location $PSScriptRoot/vcpkg
+        git clean -Xdf ./buildtrees/ ./downloads/
+    }
+}
+
 # Clone vcpkg
-# TODO: Shallow clone, specify commitish from parameter
-git clone https://github.com/microsoft/vcpkg.git
+git clone https://github.com/microsoft/vcpkg.git --depth=1 --branch $Commitish
 
 Push-Location vcpkg
 $commitish = git rev-parse HEAD
@@ -118,11 +119,9 @@ foreach ($port in $Ports) {
         if (!$features) { 
             $toRun += @{ Port = $port; Triplet = $triplet }
         } else { 
-            foreach($feature in $features) { 
-                $toRun += @{
-                    Port = "$port[$feature]"; 
-                    Triplet = $triplet 
-                }
+            $toRun += @{
+                Port = "$port[$($features -join ',')]"; 
+                Triplet = $triplet 
             }
         }
     }
@@ -137,16 +136,11 @@ Write-Host "Ports to download: $($toRun.Count)"
 
 $results = $toRun | ForEach-Object {
     vcpkgDownload -port $_.Port -triplet $_.Triplet -install $Install
-}
-
-if ($OutFile) {
-    # TODO: If a task is canceled can we trap and try to write the log? 
-    # Otherwise, write a log file for each port.
-    $results | ConvertTo-Json | Set-Content $OutFile
+    ensureDiskSpace
 }
 
 Write-Host "Summary: "
-Write-host "Ports: $($ports.Keys.Count)"
+Write-host "Ports: $($Ports.Count)"
 Write-Host "Port * Triplets Processed: $($toRun.Count)"
 Write-Host "Succeeded: $($results.Where({$_.ExitCode -eq 0}).Count)"
 Write-Host "Failed: $($results.Where({$_.ExitCode -ne 0}).Count)"
