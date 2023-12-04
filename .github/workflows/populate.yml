@@ -175,12 +175,30 @@ jobs:
           Write-Host "Token Length: $($token.Length)"
           "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
 
+      - name: Get storage token
+        id: get-storage-token-logs
+        shell: pwsh
+        run: |
+          # Output is quoted, so ConvertFrom-Json to get the value without 
+          # the quotes
+          $token = az storage container generate-sas `
+            --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} `
+            --auth-mode login `
+            --as-user `
+            --name vcpkg-logs `
+            --permissions aclmrw `
+            --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
+            --output json | ConvertFrom-Json
+
+          Write-Host "::add-mask::$token"
+          Write-Host "Token Length: $($token.Length)"
+          "storage-token=$token" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append  
+
       - name: Download artifacts-to-populate.txt
         uses: actions/download-artifact@v3
         with:
           name: artifacts-to-populate
 
-      # TODO: Better logging
       - name: Populate artifacts
         shell: pwsh
         env:
@@ -192,6 +210,14 @@ jobs:
           -Ports (Get-Content artifacts-to-populate.txt)
           -IgnorePorts (Get-Content ignore-ports.txt)
       
+      - name: Upload logs to storage
+        shell: pwsh
+        run: >-
+          azcopy copy
+          logs/*
+          'https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-logs/${{ github.run_number }}/${{ github.run_attempt }}?${{ steps.get-storage-token-binary-cache.outputs.storage-token }}'
+          --recursive
+          
 
   download-report:
     environment: build-cache
