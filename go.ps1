@@ -23,7 +23,6 @@ function vcpkgDownload($port, $triplet, $install) {
         $portFileName = getPortName $port
         $logDirectory = New-Item -ItemType Directory -Force -Path "$PSScriptRoot/logs/$triplet/$portFileName/"
         
-        Write-Host "$PSScriptRoot/logs/$triplet/$portFileName/"
         if (!(Test-Path  "$PSScriptRoot/logs/$triplet/$portFileName/")) { 
             Write-Error "Could not create folder -- $PSScriptRoot/logs/$triplet/$portFileName/"
             exit 1
