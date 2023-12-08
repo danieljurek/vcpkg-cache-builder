@@ -34,10 +34,9 @@ function vcpkgDownload($port, $triplet, $install) {
             $extraParameters = ''
         }
         $portAndTriplet =  "$($port):$($triplet)" 
-        Write-Host -NoNewline "vcpkg install $portAndTriplet $extraParameters`t"
+        Write-Host -NoNewline "vcpkg install $portAndTriplet --allow-unsupported $extraParameters`t"
         $duration = Measure-Command {
-            & ./vcpkg install $portAndTriplet $extraParameters 2>&1 > "$logDirectory/vcpkg.log"
-            
+            & ./vcpkg install $portAndTriplet $extraParameters  --allow-unsupported 2>&1 > "$logDirectory/vcpkg.log"
          }
 
         if ($LASTEXITCODE) {
