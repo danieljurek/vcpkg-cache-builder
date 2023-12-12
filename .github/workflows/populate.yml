@@ -40,6 +40,7 @@ jobs:
             --as-user `
             --name vcpkg-assets `
             --permissions aclmrw `
+            --start ((Get-Date -AsUTC).AddHours(-1).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
@@ -149,6 +150,7 @@ jobs:
             --as-user `
             --name vcpkg-assets `
             --permissions aclmrw `
+            --start ((Get-Date -AsUTC).AddHours(-1).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
@@ -168,6 +170,7 @@ jobs:
             --as-user `
             --name vcpkg-binaries `
             --permissions aclmrw `
+            --start ((Get-Date -AsUTC).AddHours(-1).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
@@ -187,6 +190,7 @@ jobs:
             --as-user `
             --name vcpkg-logs `
             --permissions aclmrw `
+            --start ((Get-Date -AsUTC).AddHours(-1).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
@@ -250,6 +254,7 @@ jobs:
             --as-user `
             --name vcpkg-assets `
             --permissions aclmrw `
+            --start ((Get-Date -AsUTC).AddHours(-1).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --expiry ((Get-Date -AsUTC).AddHours(6).ToString("yyyy-MM-dd'T'HH:mm'Z'")) `
             --output json | ConvertFrom-Json
 
