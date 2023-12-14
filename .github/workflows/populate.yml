@@ -282,7 +282,7 @@ jobs:
         run: |
           ./Set-Issues.ps1 `
             -ReportFile ./download-report.json `
-            -Repo ${{ github.action_repository }} `
+            -Repo "${{ github.repository }}" `
             -BuildUrl "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Upload download-report.json
