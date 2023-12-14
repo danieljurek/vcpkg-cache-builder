@@ -277,6 +277,14 @@ jobs:
             -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
             -ReportFile download-report.json
 
+      - name: Update issues
+        shell: pwsh
+        run: |
+          ./Set-Issues.ps1 `
+            -ReportFile ./download-report.json `
+            -Repo ${{ github.action_repository }} `
+            -BuildUrl "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
       - name: Upload download-report.json
         uses: actions/upload-artifact@v3
         with:
