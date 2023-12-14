@@ -128,7 +128,8 @@ jobs:
 
       - name: apt-get install
         if: matrix.apt-get-packages != ''
-        run: sudo apt-get install -y ${{ matrix.apt-get-packages }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y ${{ matrix.apt-get-packages }}
 
       - name: Az CLI login
         uses: azure/login@v1
