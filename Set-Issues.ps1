@@ -14,7 +14,7 @@ $portIssues = gh search issues `
 $portIssuesHash = @{}
 if ($portIssues) { 
     foreach ($item in $portIssues.GetEnumerator()) { 
-        $portIssuesHash[$item.title] = $item.number
+        $portIssuesHash[$item['title']] = $item['number']
     }    
 }
 
