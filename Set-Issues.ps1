@@ -4,7 +4,7 @@ param(
     $BuildUrl='missing'
 )
 
-$ISSUE_PREFIX = "[port downloadd failure]"
+$ISSUE_PREFIX = "[port download failure]"
 $portIssues = gh search issues `
     --repo $Repo `
     --state open `
