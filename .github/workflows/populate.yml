@@ -61,6 +61,7 @@ jobs:
             -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
             -ContainerName 'vcpkg-assets' `
             -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
+            -IgnorePorts (Get-Content ./ignore-ports.txt) `
           | Set-Content artifacts-to-populate.txt
 
           if (Test-Path ./artifacts-to-populate.txt) {
@@ -276,6 +277,7 @@ jobs:
             -AccountName '${{ vars.STORAGE_ACCOUNT_NAME }}' `
             -ContainerName 'vcpkg-assets' `
             -IgnoreHashes (Get-Content ./ignore-hashes.txt) `
+            -IgnorePorts (Get-Content ./ignore-ports.txt) `
             -ReportFile download-report.json
 
       - name: Update issues
