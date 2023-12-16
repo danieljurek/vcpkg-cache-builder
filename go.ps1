@@ -110,8 +110,18 @@ if (!$Ports) {
     $Ports = (./vcpkg/vcpkg search --x-json | ConvertFrom-Json -AsHashtable).Keys | Sort-Object
 }
 
-if ($IgnorePorts) { 
-    $Ports = $Ports | Where-Object { $IgnorePorts -notcontains $_ }
+if ($IgnorePorts) {
+    # $Ports may be of the form portname[feature1,feature2]
+    # But $IgnorePorts is of the form portname
+    # Only use the "portname" part of "portname[feature1,feature2]"
+    $portsToBuild = @()
+    foreach ($port in $Ports) { 
+        $portName = $port.Split('[')[0]
+        if ($IgnorePorts -notcontains $portName) { 
+            $portsToBuild += $port
+        }
+    }
+    $Ports = $portsToBuild
 }
 
 Write-Host "Total ports $($Ports.Count)"
