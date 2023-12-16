@@ -1,1 +1,7 @@
 gazebo
+gsoap
+monkeys-audio
+salome-med-fichier
+tensorflow-common
+wayland
+wayland-protocols
