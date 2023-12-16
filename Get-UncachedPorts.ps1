@@ -1,8 +1,10 @@
 param(
+    $Commitish='main',
     $AccountName,
     $ContainerName,
     $ReportFile,
-    $IgnoreHashes = @()
+    $IgnoreHashes = @(),
+    $IgnorePorts = @()
 )
 
 $PSNativeCommandArgumentPassing = 'Legacy'
@@ -20,7 +22,7 @@ Write-Host "Found $($blobHash.Count) blobs in $ContainerName"
 
 # Clone vcpkg
 # TODO: Shallow clone, specify commitish from parameter
-git clone https://github.com/microsoft/vcpkg.git | Out-Null
+git clone https://github.com/microsoft/vcpkg.git --depth=1 --branch $Commitish | Out-Null
 
 Push-Location vcpkg
 $commitish = git rev-parse HEAD
@@ -66,7 +68,13 @@ foreach ($sha512 in $missingShas) {
     $directories = $allShas[$sha512].Directory.FullName.Split($separator)
     for ($i = $directories.Length - 2; $i -gt 0; $i--) { 
         if ($directories[$i] -eq "ports") {
-            $portName = $directories[$i + 1] 
+
+            $portName = $directories[$i + 1]
+            if ($IgnorePorts -contains $portName) { 
+                # Exclude entries in $IgnorePorts
+                continue
+            }
+
             if ($portNames.ContainsKey($portName)) { 
                 $portNames[$portName] += @($sha512)
             } else { 
