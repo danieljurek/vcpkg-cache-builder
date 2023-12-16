@@ -1,5 +1,5 @@
 param(
-    $Commitish='main',
+    $Commitish='master',
     $AccountName,
     $ContainerName,
     $ReportFile,
