@@ -12,10 +12,16 @@ $portIssues = gh search issues `
     --json number,title | ConvertFrom-Json -AsHashtable
 
 $portIssuesHash = @{}
-if ($portIssues) { 
-    foreach ($item in $portIssues.GetEnumerator()) { 
-        $portIssuesHash[$item['title']] = $item['number']
-    }    
+if ($portIssues) {
+    foreach ($item in $portIssues.GetEnumerator()) {
+        try {
+            $portIssuesHash[$item['title']] = $item['number']
+        } catch {
+            Write-Host "Error adding issue to hash"
+            $item | Format-List | Out-String | Write-Host
+        }
+
+    }
 }
 
 $report = Get-Content $ReportFile | ConvertFrom-Json -AsHashtable
