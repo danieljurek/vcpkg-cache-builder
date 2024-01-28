@@ -5,3 +5,5 @@ salome-med-fichier
 tensorflow-common
 wayland
 wayland-protocols
+qt5-base
+libmad
