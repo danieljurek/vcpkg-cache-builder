@@ -86,31 +86,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             triplets: x64-linux
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             triplets: x64-linux-dynamic
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             triplets: arm64-linux
             apt-get-packages: g++-aarch64-linux-gnu
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             triplets: arm-linux
             apt-get-packages: g++-arm-linux-gnueabihf 
-          - os: windows-2022
+          - os: windows-latest
             triplets: x64-uwp
-          - os: windows-2022
+          - os: windows-latest
             triplets: arm64-uwp
-          - os: windows-2022
+          - os: windows-latest
             triplets: arm64-windows
-          - os: windows-2022
+          - os: windows-latest
             triplets: x64-windows-static
-          - os: windows-2022
+          - os: windows-latest
             triplets: x64-windows
-          - os: windows-2022
+          - os: windows-latest
             triplets: x86-windows
-          - os: macos-12
+          - os: macos-latest
             triplets: x64-osx
-          - os: macos-12
+          - os: macos-latest
             triplets: arm64-osx
 
     runs-on: ${{ matrix.os }}
@@ -133,7 +133,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y ${{ matrix.apt-get-packages }}
 
       - name: Az CLI login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -223,7 +223,6 @@ jobs:
           logs/*
           'https://${{ vars.STORAGE_ACCOUNT_NAME }}.blob.core.windows.net/vcpkg-logs/${{ github.run_number }}/${{ github.run_attempt }}?${{ steps.get-storage-token-logs.outputs.storage-token }}'
           --recursive
-          
 
   download-report:
     environment: build-cache
@@ -239,7 +238,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Az CLI login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
