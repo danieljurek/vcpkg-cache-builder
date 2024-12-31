@@ -139,7 +139,7 @@ foreach ($port in $Ports) {
 
         # Always add the port by itself with no features
         $toRun += @{ Port = $port; Triplet = $triplet }
-        } if ($features) {
+        if ($features) {
             $toRun += @{
                 # TODO: Some features might be mutually exclusive
                 Port = "$port[$($features -join ',')]"; 
