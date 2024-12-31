@@ -5,11 +5,18 @@ param(
 )
 
 $ISSUE_PREFIX = "[port download failure]"
-$portIssues = gh search issues `
-    --repo $Repo `
-    --state open `
-    "$ISSUE_PREFIX" `
-    --json number,title | ConvertFrom-Json -AsHashtable
+do {
+    $portIssues = gh search issues `
+        --repo $Repo `
+        --state open `
+        "$ISSUE_PREFIX" `
+        --json number,title | ConvertFrom-Json -AsHashtable
+
+    if ($LASTEXITCODE) {
+        Write-Host "Error searching for issues. Sleeping 30 seconds..."
+        Start-Sleep -Seconds 30
+    }
+} while ($LASTEXITCODE)
 
 $portIssuesHash = @{}
 if ($portIssues) {
