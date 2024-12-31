@@ -94,10 +94,10 @@ jobs:
             apt-get-packages: linux-libc-dev
           - os: ubuntu-latest
             triplets: arm64-linux
-            apt-get-packages: g++-aarch64-linux-gnu install linux-libc-dev
+            apt-get-packages: g++-aarch64-linux-gnu linux-libc-dev
           - os: ubuntu-latest
             triplets: arm-linux
-            apt-get-packages: g++-arm-linux-gnueabihf install linux-libc-dev
+            apt-get-packages: g++-arm-linux-gnueabihf linux-libc-dev
           - os: windows-latest
             triplets: x64-uwp
           - os: windows-latest
